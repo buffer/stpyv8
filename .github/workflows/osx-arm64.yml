@@ -15,7 +15,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-15]
+        os: [macos-15, macos-26]
     outputs:
       v8-hash: ${{ steps.build-v8.outputs.v8-hash }}
     steps:
