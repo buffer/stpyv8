@@ -32,7 +32,7 @@ gn_args = {
     "use_rtti": "false",
     "use_sysroot": "false",
     "v8_deprecation_warnings": "true",
-    "v8_enable_builtins_optimization": "false" if platform.system() in ("Darwin", ) else "true",
+    "v8_enable_builtins_optimization": "false",
     "v8_enable_disassembler": "false",
     "v8_enable_gdbjit": "false",
     "v8_enable_i18n_support": "true",
