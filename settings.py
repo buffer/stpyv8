@@ -7,7 +7,7 @@ DEPOT_HOME = os.environ.get("DEPOT_HOME", os.path.join(STPYV8_HOME, "depot_tools
 V8_HOME = os.environ.get("V8_HOME", os.path.join(STPYV8_HOME, "v8"))
 
 V8_GIT_URL = "https://chromium.googlesource.com/v8/v8.git"
-V8_GIT_TAG_STABLE = "14.5.170"
+V8_GIT_TAG_STABLE = "14.7.173.16"
 V8_GIT_TAG_MASTER = "master"
 V8_GIT_TAG = V8_GIT_TAG_STABLE
 DEPOT_GIT_URL = "https://chromium.googlesource.com/chromium/tools/depot_tools.git"
@@ -168,6 +168,8 @@ elif os.name in ("posix",):
     else:
         extra_compile_args.append("-std=c++20")
         extra_link_args.append("-headerpad_max_install_names")
+        extra_compile_args.append("-Wno-macro-redefined")
+        # include_dirs.add("/opt/homebrew/Cellar/boost/1.90.0_1/include")
 
 
 GN_ARGS = " ".join(f"{key}={value}" for key, value in gn_args.items())

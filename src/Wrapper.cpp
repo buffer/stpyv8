@@ -224,22 +224,29 @@ void CPythonObject::ThrowIf(v8::Isolate* isolate)
         v8::Local<v8::Private> privateKey_value = v8::Private::ForApi(isolate, key_value);
 
 #ifdef SUPPORT_TRACE_EXCEPTION_LIFECYCLE
-        error->ToObject(ctxt).ToLocalChecked()->SetPrivate(ctxt, privateKey_type, v8::External::New(isolate, ObjectTracer::Trace(error, new py::object(type)).Object()));
-        error->ToObject(ctxt).ToLocalChecked()->SetPrivate(ctxt, privateKey_value,v8::External::New(isolate, ObjectTracer::Trace(error, new py::object(value)).Object()));
+        error->ToObject(ctxt).ToLocalChecked()->SetPrivate(ctxt, privateKey_type, v8::External::New(isolate, ObjectTracer::Trace(error, new py::object(type)).Object(), v8::kExternalPointerTypeTagDefault));
+        error->ToObject(ctxt).ToLocalChecked()->SetPrivate(ctxt, privateKey_value,v8::External::New(isolate, ObjectTracer::Trace(error, new py::object(value)).Object(), v8::kExternalPointerTypeTagDefault));
 #else
-        error->ToObject(ctxt).ToLocalChecked()->SetPrivate(ctxt, privateKey_type, v8::External::New(isolate, new py::object(type)));
-        error->ToObject(ctxt).ToLocalChecked()->SetPrivate(ctxt, privateKey_value, v8::External::New(isolate, new py::object(value)));
+        error->ToObject(ctxt).ToLocalChecked()->SetPrivate(ctxt, privateKey_type, v8::External::New(isolate, new py::object(type), v8::kExternalPointerTypeTagDefault));
+        error->ToObject(ctxt).ToLocalChecked()->SetPrivate(ctxt, privateKey_value, v8::External::New(isolate, new py::object(value), v8::kExternalPointerTypeTagDefault));
 #endif
     }
 
     isolate->ThrowException(error);
 }
 
+template <typename T, typename V>
+inline void SafeSetReturnValue(v8::ReturnValue<T> rv, V value) {
+    if constexpr (!std::is_same_v<T, void>) {
+        rv.Set(value);
+    }
+}
+
 #define _TERMINATE_CALLBACK_EXECUTION_CHECK(returnValue) \
   if(v8::Isolate::GetCurrent()->IsExecutionTerminating()) { \
     ::PyErr_Clear(); \
     ::PyErr_SetString(PyExc_RuntimeError, "execution is terminating"); \
-    info.GetReturnValue().Set(returnValue); \
+    SafeSetReturnValue(info.GetReturnValue(), returnValue); \
     return v8::Intercepted::kNo; \
   }
 
@@ -248,14 +255,14 @@ void CPythonObject::ThrowIf(v8::Isolate* isolate)
                                     {
 #define END_HANDLE_EXCEPTION(value) } \
                                     END_HANDLE_PYTHON_EXCEPTION \
-                                    info.GetReturnValue().Set(value); \
+                                    SafeSetReturnValue(info.GetReturnValue(), value); \
                                     return v8::Intercepted::kYes;
 
 #define _TERMINATE_CALLBACK_EXECUTION_CHECK_NO_INTERCEPT(returnValue) \
   if(v8::Isolate::GetCurrent()->IsExecutionTerminating()) { \
     ::PyErr_Clear(); \
     ::PyErr_SetString(PyExc_RuntimeError, "execution is terminating"); \
-    info.GetReturnValue().Set(returnValue); \
+    SafeSetReturnValue(info.GetReturnValue(), returnValue); \
     return; \
   }
 
@@ -264,12 +271,12 @@ void CPythonObject::ThrowIf(v8::Isolate* isolate)
                                                  {
 #define END_HANDLE_EXCEPTION_NO_INTERCEPT(value) } \
                                                  END_HANDLE_PYTHON_EXCEPTION \
-                                                 info.GetReturnValue().Set(value); \
+                                                 SafeSetReturnValue(info.GetReturnValue(), value); \
                                                  return;
 
-#define CALLBACK_RETURN_HANDLED(value) do { info.GetReturnValue().Set(value); return v8::Intercepted::kYes; } while(0);
-#define CALLBACK_RETURN_NOT_HANDLED(value) do { info.GetReturnValue().Set(value); return v8::Intercepted::kNo; } while(0);
-#define CALLBACK_RETURN_NO_INTERCEPT(value) do { info.GetReturnValue().Set(value); return; } while(0);
+#define CALLBACK_RETURN_HANDLED(value) do { SafeSetReturnValue(info.GetReturnValue(), value); return v8::Intercepted::kYes; } while(0);
+#define CALLBACK_RETURN_NOT_HANDLED(value) do { SafeSetReturnValue(info.GetReturnValue(), value); return v8::Intercepted::kNo; } while(0);
+#define CALLBACK_RETURN_NO_INTERCEPT(value) do { SafeSetReturnValue(info.GetReturnValue(), value); return; } while(0);
 
 
 CPythonObject::CPythonObject()
@@ -801,7 +808,7 @@ void CPythonObject::Caller(const v8::FunctionCallbackInfo<v8::Value>& info)
     {
         v8::Handle<v8::External> field = v8::Handle<v8::External>::Cast(info.Data());
 
-        self = *static_cast<py::object *>(field->Value());
+        self = *static_cast<py::object *>(field->Value(v8::kExternalPointerTypeTagDefault));
     }
     else
     {
@@ -873,7 +880,7 @@ py::object CPythonObject::Unwrap(v8::Handle<v8::Object> obj)
 
     v8::Handle<v8::External> payload = v8::Handle<v8::External>::Cast(obj->GetInternalField(0));
 
-    return *static_cast<py::object *>(payload->Value());
+    return *static_cast<py::object *>(payload->Value(v8::kExternalPointerTypeTagDefault));
 }
 
 void CPythonObject::Dispose(v8::Handle<v8::Value> value)
@@ -965,7 +972,7 @@ v8::Handle<v8::Value> CPythonObject::WrapInternal(py::object obj)
             py::object *object = new py::object(obj);
 
             v8::Handle<v8::Object> realInstance = instance.ToLocalChecked();
-            realInstance->SetInternalField(0, v8::External::New(isolate, object));
+            realInstance->SetInternalField(0, v8::External::New(isolate, object, v8::kExternalPointerTypeTagDefault));
 
             ObjectTracer::Trace(instance.ToLocalChecked(), object);
         }
@@ -1025,7 +1032,7 @@ v8::Handle<v8::Value> CPythonObject::WrapInternal(py::object obj)
         v8::Handle<v8::FunctionTemplate> func_tmpl = v8::FunctionTemplate::New(isolate);
         py::object *object = new py::object(obj);
 
-        func_tmpl->SetCallHandler(Caller, v8::External::New(isolate, object));
+        func_tmpl->SetCallHandler(Caller, v8::External::New(isolate, object, v8::kExternalPointerTypeTagDefault));
 
         if (PyType_Check(obj.ptr()))
         {
@@ -1053,7 +1060,7 @@ v8::Handle<v8::Value> CPythonObject::WrapInternal(py::object obj)
             py::object *object = new py::object(obj);
 
             v8::Handle<v8::Object> realInstance = instance.ToLocalChecked();
-            realInstance->SetInternalField(0, v8::External::New(isolate, object));
+            realInstance->SetInternalField(0, v8::External::New(isolate, object, v8::kExternalPointerTypeTagDefault));
 
 #ifdef SUPPORT_TRACE_LIFECYCLE
             ObjectTracer::Trace(instance.ToLocalChecked(), object);
@@ -1996,14 +2003,14 @@ LivingMap * ObjectTracer::GetLivingMapping(void)
 
     if (!value.IsEmpty())
     {
-        LivingMap *living = (LivingMap *) v8::External::Cast(*value.ToLocalChecked())->Value();
+        LivingMap *living = (LivingMap *) v8::External::Cast(*value.ToLocalChecked())->Value(v8::kExternalPointerTypeTagDefault);
 
         if (living) return living;
     }
 
     std::unique_ptr<LivingMap> living(new LivingMap());
 
-    ctxt->Global()->SetPrivate(ctxt, privateKey, v8::External::New(v8::Isolate::GetCurrent(), living.get()));
+    ctxt->Global()->SetPrivate(ctxt, privateKey, v8::External::New(v8::Isolate::GetCurrent(), living.get(), v8::kExternalPointerTypeTagDefault));
 
     ContextTracer::Trace(ctxt, living.get());
 

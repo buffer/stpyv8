@@ -399,8 +399,8 @@ void ExceptionTranslator::Translate(CJavascriptException const& ex)
 
             if (!exc_type.IsEmpty() && !exc_value.IsEmpty())
             {
-                std::unique_ptr<py::object> type(static_cast<py::object *>(v8::Handle<v8::External>::Cast(exc_type.ToLocalChecked())->Value()));
-                std::unique_ptr<py::object> value(static_cast<py::object *>(v8::Handle<v8::External>::Cast(exc_value.ToLocalChecked())->Value()));
+                std::unique_ptr<py::object> type(static_cast<py::object *>(v8::Handle<v8::External>::Cast(exc_type.ToLocalChecked())->Value(v8::kExternalPointerTypeTagDefault)));
+                std::unique_ptr<py::object> value(static_cast<py::object *>(v8::Handle<v8::External>::Cast(exc_value.ToLocalChecked())->Value(v8::kExternalPointerTypeTagDefault)));
 
                 if(type != nullptr && value != nullptr) {
                     ::PyErr_SetObject(type->ptr(), value->ptr());
@@ -466,7 +466,7 @@ void CJavascriptException::PrintCallStack(py::object file)
     int fd = ::PyObject_AsFileDescriptor(out);
 
     boost::iostreams::stream_buffer<boost::iostreams::file_descriptor_source> fpstream(
-		fileno(fdopen(fd, "w+")), boost::iostreams::never_close_handle);
+        fileno(fdopen(fd, "w+")), boost::iostreams::never_close_handle);
 
     std::ostream outstream(&fpstream);
 
