@@ -175,5 +175,8 @@ elif os.name in ("posix",):
 
 GN_ARGS = " ".join(f"{key}={value}" for key, value in gn_args.items())
 
+# Remove this awful hack after testing
+GN_ARGS = GN_ARGS.replace("'", '"')
+
 include_dirs = list(include_dirs)
 library_dirs = list(library_dirs)
