@@ -20,7 +20,6 @@ os.environ["PATH"] = f"{os.environ.get('PATH', '')}:{DEPOT_HOME}"
 
 gn_args = {
     "clang_use_chrome_plugins": "false",
-    "cxxflags": ["-Wno-ctad-maybe-unsupported"],
     "dcheck_always_on": "false",
     "enable_rust": "false",
     "is_clang": "true",
@@ -29,7 +28,7 @@ gn_args = {
     "strip_debug_info": "true",
     "treat_warnings_as_errors": "false",
     "use_clang_modules": "false",
-    "use_custom_libcxx": "false",
+    "use_custom_libcxx": "true" if platform.system() in ("Linux", ) else "false",
     "use_rtti": "false",
     "use_sysroot": "false",
     "v8_deprecation_warnings": "true",
@@ -174,7 +173,6 @@ elif os.name in ("posix",):
 
 
 GN_ARGS = " ".join(f"{key}={value}" for key, value in gn_args.items())
-GN_ARGS += ' cxxflags=["-Wno-ctad-maybe-unsupported"]'
 
 include_dirs = list(include_dirs)
 library_dirs = list(library_dirs)
