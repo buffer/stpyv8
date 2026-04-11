@@ -42,6 +42,7 @@ jobs:
         if: ${{ steps.restore-v8.outputs.cache-hit != 'true' }}
         continue-on-error: false
         run: |
+          sudo apt-get install -y build-essential g++ libstdc++-13-dev
           echo "v8-hash=${{ hashFiles('v8/src/**') }}" >> "$GITHUB_OUTPUT"
           python -m pip install wheel
           echo "::group::v8"
