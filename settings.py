@@ -22,7 +22,7 @@ gn_args = {
     "clang_use_chrome_plugins": "false",
     "dcheck_always_on": "false",
     "enable_rust": "false",
-    "is_clang": "true" if platform.system() not in ("Linux", ) else "false",,
+    "is_clang": "true" if platform.system() not in ("Linux", ) else "false",
     "is_component_build": "false",
     "is_debug": "true" if os.environ.get("STPYV8_DEBUG") else "false",
     "strip_debug_info": "true",
