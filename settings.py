@@ -31,7 +31,6 @@ gn_args = {
     "use_custom_libcxx": "false",
     "use_rtti": "false",
     "use_sysroot": "false",
-    "target_sysroot_dir": "",
     "v8_deprecation_warnings": "false",
     "v8_enable_builtins_optimization": "true" if platform.system() not in ("Darwin", ) else "false",
     "v8_enable_disassembler": "false",
