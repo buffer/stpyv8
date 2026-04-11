@@ -102,6 +102,7 @@ jobs:
           key: linux-build-v8-${{ needs.build-v8.outputs.v8-hash }}
       - name: Install dependencies
         run: |
+          sudo apt-get install -y build-essential g++ libstdc++-13-dev
           pip install --upgrade pip setuptools wheel auditwheel patchelf pytest pytest-order
       - name: Build wheel
         run: |
