@@ -235,12 +235,21 @@ void CPythonObject::ThrowIf(v8::Isolate* isolate)
     isolate->ThrowException(error);
 }
 
-template <typename T, typename V>
-inline void SafeSetReturnValue(v8::ReturnValue<T> rv, V value) {
-    if constexpr (!std::is_same_v<T, void>) {
-        rv.Set(value);
+template <typename T, typename S>
+inline void SafeSetReturnValue(v8::ReturnValue<T> rv, const S& value) {
+    rv.Set(value);
+}
+
+template <>
+inline void SafeSetReturnValue<v8::Boolean, v8::Local<v8::Value>>(
+    v8::ReturnValue<v8::Boolean> rv, const v8::Local<v8::Value>& value) {
+    if (!value.IsEmpty() && value->IsBoolean()) {
+        rv.Set(value.As<v8::Boolean>());
+    } else {
+        rv.Set(false);
     }
 }
+
 
 #define _TERMINATE_CALLBACK_EXECUTION_CHECK(returnValue) \
   if(v8::Isolate::GetCurrent()->IsExecutionTerminating()) { \
@@ -295,7 +304,7 @@ v8::Intercepted CPythonObject::NamedGetter(v8::Local<v8::Name> prop, const v8::P
 
     CPythonGIL python_gil;
 
-    py::object obj = CJavascriptObject::Wrap(info.HolderV2());
+    py::object obj = CJavascriptObject::Wrap(info.Holder());
     if (PyGen_Check(obj.ptr()))
         CALLBACK_RETURN_HANDLED(v8::Undefined(info.GetIsolate()));
 
@@ -357,24 +366,23 @@ v8::Intercepted CPythonObject::NamedGetter(v8::Local<v8::Name> prop, const v8::P
 #endif
 
     CALLBACK_RETURN_HANDLED(Wrap(attr));
-
     END_HANDLE_EXCEPTION(v8::Undefined(info.GetIsolate()))
 }
 
-v8::Intercepted CPythonObject::NamedSetter(v8::Local<v8::Name> prop, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+v8::Intercepted CPythonObject::NamedSetter(v8::Local<v8::Name> prop, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<v8::Boolean>& info)
 {
     v8::HandleScope handle_scope(info.GetIsolate());
 
-    TRY_HANDLE_EXCEPTION(v8::Undefined(info.GetIsolate()))
+    TRY_HANDLE_EXCEPTION(v8::Boolean::New(info.GetIsolate(), false))
 
     CPythonGIL python_gil;
 
-    py::object obj = CJavascriptObject::Wrap(info.HolderV2());
+    py::object obj = CJavascriptObject::Wrap(info.Holder());
 
     v8::String::Utf8Value name(info.GetIsolate(), prop);
 
     if (*name == nullptr)
-        CALLBACK_RETURN_NOT_HANDLED(v8::Undefined(info.GetIsolate()));
+        CALLBACK_RETURN_NOT_HANDLED(v8::Boolean::New(info.GetIsolate(), false))
 
     py::object newval = CJavascriptObject::Wrap(value);
 
@@ -421,8 +429,7 @@ v8::Intercepted CPythonObject::NamedSetter(v8::Local<v8::Name> prop, v8::Local<v
     }
 
     CALLBACK_RETURN_HANDLED(value);
-
-    END_HANDLE_EXCEPTION(v8::Undefined(info.GetIsolate()));
+    END_HANDLE_EXCEPTION(v8::Boolean::New(info.GetIsolate(), false));
 }
 
 v8::Intercepted CPythonObject::NamedQuery(v8::Local<v8::Name> prop, const v8::PropertyCallbackInfo<v8::Integer>& info)
@@ -433,7 +440,7 @@ v8::Intercepted CPythonObject::NamedQuery(v8::Local<v8::Name> prop, const v8::Pr
 
     CPythonGIL python_gil;
 
-    py::object obj = CJavascriptObject::Wrap(info.HolderV2());
+    py::object obj = CJavascriptObject::Wrap(info.Holder());
 
     v8::String::Utf8Value name(info.GetIsolate(), prop);
 
@@ -480,7 +487,7 @@ v8::Intercepted CPythonObject::NamedDeleter(v8::Local<v8::Name> prop, const v8::
 
     CPythonGIL python_gil;
 
-    py::object obj = CJavascriptObject::Wrap(info.HolderV2());
+    py::object obj = CJavascriptObject::Wrap(info.Holder());
 
     v8::String::Utf8Value name(info.GetIsolate(), prop);
 
@@ -538,7 +545,7 @@ void CPythonObject::NamedEnumerator(const v8::PropertyCallbackInfo<v8::Array>& i
 
     CPythonGIL python_gil;
 
-    py::object obj = CJavascriptObject::Wrap(info.HolderV2());
+    py::object obj = CJavascriptObject::Wrap(info.Holder());
 
     py::list keys;
     bool filter_name = false;
@@ -604,7 +611,7 @@ v8::Intercepted CPythonObject::IndexedGetter(uint32_t index, const v8::PropertyC
 
     CPythonGIL python_gil;
 
-    py::object obj = CJavascriptObject::Wrap(info.HolderV2());
+    py::object obj = CJavascriptObject::Wrap(info.Holder());
     if (PyGen_Check(obj.ptr()))
         CALLBACK_RETURN_HANDLED(v8::Undefined(info.GetIsolate()));
 
@@ -642,15 +649,15 @@ v8::Intercepted CPythonObject::IndexedGetter(uint32_t index, const v8::PropertyC
     END_HANDLE_EXCEPTION(v8::Undefined(info.GetIsolate()))
 }
 
-v8::Intercepted CPythonObject::IndexedSetter(uint32_t index, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info)
+v8::Intercepted CPythonObject::IndexedSetter(uint32_t index, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<v8::Boolean>& info)
 {
     v8::HandleScope handle_scope(info.GetIsolate());
 
-    TRY_HANDLE_EXCEPTION(v8::Undefined(info.GetIsolate()));
+    TRY_HANDLE_EXCEPTION(v8::Boolean::New(info.GetIsolate(), false))
 
     CPythonGIL python_gil;
 
-    py::object obj = CJavascriptObject::Wrap(info.HolderV2());
+    py::object obj = CJavascriptObject::Wrap(info.Holder());
 
     if (::PySequence_Check(obj.ptr()))
     {
@@ -668,7 +675,7 @@ v8::Intercepted CPythonObject::IndexedSetter(uint32_t index, v8::Local<v8::Value
     }
 
     CALLBACK_RETURN_HANDLED(value);
-    END_HANDLE_EXCEPTION(v8::Undefined(info.GetIsolate()))
+    END_HANDLE_EXCEPTION(v8::Boolean::New(info.GetIsolate(), false))
 }
 
 v8::Intercepted CPythonObject::IndexedQuery(uint32_t index, const v8::PropertyCallbackInfo<v8::Integer>& info)
@@ -679,7 +686,7 @@ v8::Intercepted CPythonObject::IndexedQuery(uint32_t index, const v8::PropertyCa
 
     CPythonGIL python_gil;
 
-    py::object obj = CJavascriptObject::Wrap(info.HolderV2());
+    py::object obj = CJavascriptObject::Wrap(info.Holder());
 
     if (PyGen_Check(obj.ptr()))
         CALLBACK_RETURN_HANDLED(v8::Integer::New(info.GetIsolate(), v8::ReadOnly));
@@ -724,7 +731,7 @@ v8::Intercepted CPythonObject::IndexedDeleter(uint32_t index, const v8::Property
 
     CPythonGIL python_gil;
 
-    py::object obj = CJavascriptObject::Wrap(info.HolderV2());
+    py::object obj = CJavascriptObject::Wrap(info.Holder());
 
     if (::PySequence_Check(obj.ptr()) && (Py_ssize_t) index < ::PySequence_Size(obj.ptr()))
     {
@@ -751,7 +758,7 @@ void CPythonObject::IndexedEnumerator(const v8::PropertyCallbackInfo<v8::Array>&
 
     CPythonGIL python_gil;
 
-    py::object obj = CJavascriptObject::Wrap(info.HolderV2());
+    py::object obj = CJavascriptObject::Wrap(info.Holder());
 
     Py_ssize_t len = ::PySequence_Check(obj.ptr()) ? ::PySequence_Size(obj.ptr()) : 0;
 

@@ -31,13 +31,13 @@ private:
 
 public:
     static v8::Intercepted NamedGetter(v8::Local<v8::Name> prop, const v8::PropertyCallbackInfo<v8::Value>& info);
-    static v8::Intercepted NamedSetter(v8::Local<v8::Name> prop, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+    static v8::Intercepted NamedSetter(v8::Local<v8::Name> prop, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<v8::Boolean>& info);
     static v8::Intercepted NamedQuery(v8::Local<v8::Name> prop, const v8::PropertyCallbackInfo<v8::Integer>& info);
     static v8::Intercepted NamedDeleter(v8::Local<v8::Name> prop, const v8::PropertyCallbackInfo<v8::Boolean>& info);
     static void NamedEnumerator(const v8::PropertyCallbackInfo<v8::Array>& info);
 
     static v8::Intercepted IndexedGetter(uint32_t index, const v8::PropertyCallbackInfo<v8::Value>& info);
-    static v8::Intercepted IndexedSetter(uint32_t index, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<void>& info);
+    static v8::Intercepted IndexedSetter(uint32_t index, v8::Local<v8::Value> value, const v8::PropertyCallbackInfo<v8::Boolean>& info);
     static v8::Intercepted IndexedQuery(uint32_t index, const v8::PropertyCallbackInfo<v8::Integer>& info);
     static v8::Intercepted IndexedDeleter(uint32_t index, const v8::PropertyCallbackInfo<v8::Boolean>& info);
     static void IndexedEnumerator(const v8::PropertyCallbackInfo<v8::Array>& info);

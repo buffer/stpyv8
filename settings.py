@@ -7,7 +7,7 @@ DEPOT_HOME = os.environ.get("DEPOT_HOME", os.path.join(STPYV8_HOME, "depot_tools
 V8_HOME = os.environ.get("V8_HOME", os.path.join(STPYV8_HOME, "v8"))
 
 V8_GIT_URL = "https://chromium.googlesource.com/v8/v8.git"
-V8_GIT_TAG_STABLE = "14.7.173.16"
+V8_GIT_TAG_STABLE = "15.3.76.10"
 V8_GIT_TAG_MASTER = "master"
 V8_GIT_TAG = V8_GIT_TAG_STABLE
 DEPOT_GIT_URL = "https://chromium.googlesource.com/chromium/tools/depot_tools.git"
@@ -22,6 +22,8 @@ gn_args = {
     "clang_use_chrome_plugins": "false",
     "dcheck_always_on": "false",
     "enable_rust": "false",
+    "is_asan": "false",
+    "is_cfi": "false",
     "is_clang": "true" if platform.system() not in ("Linux", ) else "false",
     "is_component_build": "false",
     "is_debug": "true" if os.environ.get("STPYV8_DEBUG") else "false",
@@ -32,7 +34,7 @@ gn_args = {
     "use_rtti": "false",
     "use_sysroot": "false",
     "v8_deprecation_warnings": "false",
-    "v8_enable_builtins_optimization": "true" if platform.system() not in ("Darwin", ) else "false",
+    "v8_enable_backtrace": "false",
     "v8_enable_disassembler": "false",
     "v8_enable_gdbjit": "false",
     "v8_enable_i18n_support": "true",
@@ -151,27 +153,27 @@ if os.name in ("nt",):
 
 elif os.name in ("posix",):
     libraries = [
-        # "boost_system",
         "boost_iostreams",
         "boost_filesystem",
         "v8_monolith",
         STPYV8_BOOST_PYTHON.replace(".", ""),
     ]
 
+    extra_compile_args.append("-stdlib=libc++")
     extra_compile_args.append("-Wno-strict-aliasing")
     extra_compile_args.append("-Wno-array-bounds")
+    extra_link_args.append("-stdlib=libc++")
 
     if platform.system() in ("Linux",):
         libraries.append("rt")
         extra_compile_args.append("-std=c++2a")
         extra_compile_args.append("-Wno-comment")
-        extra_compile_args.append("-stdlib=libstdc++")
-        extra_link_args.append("-stdlib=libstdc++")
     else:
+        os.environ["MACOSX_DEPLOYMENT_TARGET"]="14.0"
         extra_compile_args.append("-std=c++20")
         extra_link_args.append("-headerpad_max_install_names")
         extra_compile_args.append("-Wno-macro-redefined")
-        # include_dirs.add("/opt/homebrew/Cellar/boost/1.90.0_1/include")
+        # include_dirs.add("/opt/homebrew/Cellar/boost/1.92.0/include")
 
 
 GN_ARGS = " ".join(f"{key}={value}" for key, value in gn_args.items())
