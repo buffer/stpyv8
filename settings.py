@@ -51,6 +51,10 @@ gn_args = {
     "v8_use_external_startup_data": "false",
 }
 
+if platform.system() in ("Linux",):
+    gn_args["target_cpu"] = "x64"
+    gn_args["v8_target_cpu"] = "x64"
+
 
 source_files = [
     "Exception.cpp",
@@ -168,10 +172,13 @@ elif os.name in ("posix",):
     if platform.system() in ("Linux",):
         os.environ["CC"]="clang"
         os.environ["CXX"]="clang++"
+        os.environ["ARCHFLAGS"]="-arch x86_64"
         # libraries.append("rt")
         # extra_compile_args.append("-std=c++2a")
         # extra_compile_args.append("-Wno-comment")
         extra_compile_args.append("-std=c++20")
+        extra_compile_args.append("-m64")
+        extra_link_args.append("-m64")
     else:
         os.environ["MACOSX_DEPLOYMENT_TARGET"]="14.0"
         extra_compile_args.append("-std=c++20")
