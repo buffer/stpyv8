@@ -53,7 +53,6 @@ gn_args = {
 
 if platform.system() in ("Linux",):
     gn_args["target_cpu"] = "x64"
-    gn_args["v8_target_cpu"] = "x64"
 
 
 source_files = [
