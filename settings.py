@@ -34,6 +34,7 @@ gn_args = {
     "use_custom_libcxx": "false",
     "use_rtti": "false",
     "use_sysroot": "false",
+    "use_thin_lto": "false",
     "v8_deprecation_warnings": "false",
     "v8_enable_backtrace": "false",
     "v8_enable_disassembler": "false",
