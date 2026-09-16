@@ -51,9 +51,6 @@ gn_args = {
     "v8_use_external_startup_data": "false",
 }
 
-if platform.system() in ("Linux",):
-    gn_args["target_cpu"] = "x64"
-
 
 source_files = [
     "Exception.cpp",
@@ -187,6 +184,9 @@ elif os.name in ("posix",):
 
 
 GN_ARGS = " ".join(f"{key}={value}" for key, value in gn_args.items())
+
+if platform.system() in ("Linux",):
+    GN_ARGS += ' target_cpu="x64" v8_target_cpu="x64"'
 
 include_dirs = list(include_dirs)
 library_dirs = list(library_dirs)
