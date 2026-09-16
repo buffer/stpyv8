@@ -173,8 +173,8 @@ elif os.name in ("posix",):
         # extra_compile_args.append("-std=c++2a")
         # extra_compile_args.append("-Wno-comment")
         extra_compile_args.append("-std=c++20")
-        extra_compile_args.append("-m64")
-        extra_link_args.append("-m64")
+        # extra_compile_args.append("-m64")
+        # extra_link_args.append("-m64")
     else:
         os.environ["MACOSX_DEPLOYMENT_TARGET"]="14.0"
         extra_compile_args.append("-std=c++20")
