@@ -104,6 +104,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get install -y build-essential g++ libstdc++-13-dev
+          sudo apt-get install -y libc++-dev libc++abi-dev
           pip install --upgrade pip setuptools wheel auditwheel patchelf pytest pytest-order
       - name: Build wheel
         run: |
