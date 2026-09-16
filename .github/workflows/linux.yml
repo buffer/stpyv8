@@ -103,15 +103,14 @@ jobs:
           key: linux-build-v8-${{ needs.build-v8.outputs.v8-hash }}
       - name: Install dependencies
         run: |
-          sudo apt-get install -y build-essential g++ libstdc++-13-dev
+          sudo apt-get install -y build-essential g++ libstdc++-dev
           sudo apt-get install -y libc++-dev libc++abi-dev
           pip install --upgrade pip setuptools wheel auditwheel patchelf pytest pytest-order
       - name: Build wheel
         run: |
           python setup.py sdist bdist_wheel --skip-build-v8 -d stpyv8-linux-wheelhouse-${{ matrix.python-version }}
         env:
-          INCLUDE: ${{ env.INCLUDE }};${{ steps.install-python.outputs.python-path
-            }}include
+          INCLUDE: ${{ env.INCLUDE }};${{ steps.install-python.outputs.python-path }}include
           V8_DEPS_LINUX: 0
           LDFLAGS: -L/usr/lib -L/usr/lib/x86_64-linux-gnu
       - name: Repair wheel
