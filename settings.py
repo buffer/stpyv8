@@ -167,8 +167,8 @@ elif os.name in ("posix",):
     extra_link_args.append("-stdlib=libc++")
 
     if platform.system() in ("Linux",):
-        os.environ["CC"]="clang"
-        os.environ["CXX"]="clang++"
+        os.environ["CC"]="clang-15"
+        os.environ["CXX"]="clang++-15"
         os.environ["ARCHFLAGS"]="-arch x86_64"
         # libraries.append("rt")
         # extra_compile_args.append("-std=c++2a")
@@ -178,7 +178,7 @@ elif os.name in ("posix",):
         # extra_link_args.append("-m64")
         extra_link_args.append("-L/usr/lib/x86_64-linux-gnu")
         extra_link_args.append("-L/usr/local/lib")
-        extra_link_args.append("-fuse-ld=lld")
+        extra_link_args.append("-fuse-ld=lld-15")
     else:
         os.environ["MACOSX_DEPLOYMENT_TARGET"]="14.0"
         extra_compile_args.append("-std=c++20")
