@@ -167,8 +167,8 @@ elif os.name in ("posix",):
     extra_link_args.append("-stdlib=libc++")
 
     if platform.system() in ("Linux",):
-        os.environ["CC"]="clang-15"
-        os.environ["CXX"]="clang++-15"
+        os.environ["CC"]="clang-16"
+        os.environ["CXX"]="clang++-16"
         os.environ["ARCHFLAGS"]="-arch x86_64"
         # libraries.append("rt")
         # extra_compile_args.append("-std=c++2a")
