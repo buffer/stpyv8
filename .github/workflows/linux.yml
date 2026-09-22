@@ -68,7 +68,7 @@ jobs:
       STPYV8_BOOST_PYTHON: boost_python${{ matrix.python-version }}
     strategy:
       matrix:
-        os: [ubuntu-22.04]
+        os: [ubuntu-24.04]
         platform: [x64]
         python-version: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14']
         boost-version: [1.90.0]
@@ -103,8 +103,7 @@ jobs:
           key: linux-build-v8-${{ needs.build-v8.outputs.v8-hash }}
       - name: Install dependencies
         run: |
-          sudo apt-get install -y build-essential g++ libstdc++-12-dev
-          sudo apt-get install -y clang-16 lld-16 libc++-16-dev libc++abi-16-dev
+          sudo apt-get install -y build-essential g++ libstdc++-13-dev
           pip install --upgrade pip setuptools wheel auditwheel patchelf pytest pytest-order
       - name: Build wheel
         run: |
@@ -115,7 +114,7 @@ jobs:
           LDFLAGS: -L/usr/lib -L/usr/lib/x86_64-linux-gnu
       - name: Repair wheel
         run: |
-          auditwheel repair --plat manylinux_2_35_x86_64 -w stpyv8-linux-${{ matrix.python-version }} stpyv8-linux-wheelhouse-${{ matrix.python-version }}/*.whl
+          auditwheel repair --plat manylinux_2_39_x86_64 -w stpyv8-linux-${{ matrix.python-version }} stpyv8-linux-wheelhouse-${{ matrix.python-version }}/*.whl
       - name: Install wheel
         run: |
           python -m pip install stpyv8-linux-${{ matrix.python-version }}/*.whl
