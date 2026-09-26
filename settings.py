@@ -31,7 +31,7 @@ gn_args = {
     "strip_debug_info": "true",
     "treat_warnings_as_errors": "false",
     "use_clang_modules": "false",
-    "use_custom_libcxx": "false",
+    "use_custom_libcxx": "false" if platform.system() not in ("Linux", ) else "true",
     "use_rtti": "false",
     "use_sysroot": "false",
     "use_thin_lto": "false",
