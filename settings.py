@@ -161,10 +161,8 @@ elif os.name in ("posix",):
         STPYV8_BOOST_PYTHON.replace(".", ""),
     ]
 
-    extra_compile_args.append("-stdlib=libc++")
     extra_compile_args.append("-Wno-strict-aliasing")
     extra_compile_args.append("-Wno-array-bounds")
-    extra_link_args.append("-stdlib=libc++")
 
     if platform.system() in ("Linux",):
         os.environ["CC"]="clang"
@@ -174,14 +172,14 @@ elif os.name in ("posix",):
         # extra_compile_args.append("-std=c++2a")
         # extra_compile_args.append("-Wno-comment")
         extra_compile_args.append("-std=c++20")
-        # extra_compile_args.append("-m64")
-        # extra_link_args.append("-m64")
         extra_link_args.append("-L/usr/lib/x86_64-linux-gnu")
         extra_link_args.append("-L/usr/local/lib")
         extra_link_args.append("-fuse-ld=lld")
     else:
         os.environ["MACOSX_DEPLOYMENT_TARGET"]="14.0"
         extra_compile_args.append("-std=c++20")
+        extra_compile_args.append("-stdlib=libc++")
+        extra_link_args.append("-stdlib=libc++")
         extra_link_args.append("-headerpad_max_install_names")
         extra_compile_args.append("-Wno-macro-redefined")
         # include_dirs.add("/opt/homebrew/Cellar/boost/1.92.0/include")
