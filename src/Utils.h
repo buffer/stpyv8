@@ -26,15 +26,16 @@
 # if !defined(__GNUC__) || (__GNUC__ <= 4 && __GNUC_MINOR__ < 7)
 #include <cmath>
 using std::isnan;
+using std::isfinite;
 
-#ifndef isfinite
-# include <limits>
-namespace std {
-inline bool isfinite(double val) {
-    return val <= std::numeric_limits<double>::max();
-}
-}
-# endif
+// #ifndef isfinite
+// # include <limits>
+// namespace std {
+// inline bool isfinite(double val) {
+//     return val <= std::numeric_limits<double>::max();
+// }
+// }
+// # endif
 #endif
 
 #include <strings.h>
