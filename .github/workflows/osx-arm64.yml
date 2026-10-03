@@ -65,8 +65,8 @@ jobs:
       matrix:
         os: [macos-15, macos-26]
         python-version: ['3.10', '3.11', '3.12', '3.13', '3.14']
-        boost-version: [1.90.0]
-        boost-version-snake: ['1_90_0']
+        boost-version: [1.92.0]
+        boost-version-snake: ['1_92_0']
     env:
       ARCH: arm64
     steps:
