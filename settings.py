@@ -163,6 +163,7 @@ elif os.name in ("posix",):
 
     extra_compile_args.append("-Wno-strict-aliasing")
     extra_compile_args.append("-Wno-array-bounds")
+    extra_compile_args.append("-DCPPGC_CAGED_HEAP")
 
     if platform.system() in ("Linux",):
         # os.environ["CC"]="clang"
