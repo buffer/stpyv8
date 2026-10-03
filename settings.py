@@ -7,7 +7,7 @@ DEPOT_HOME = os.environ.get("DEPOT_HOME", os.path.join(STPYV8_HOME, "depot_tools
 V8_HOME = os.environ.get("V8_HOME", os.path.join(STPYV8_HOME, "v8"))
 
 V8_GIT_URL = "https://chromium.googlesource.com/v8/v8.git"
-V8_GIT_TAG_STABLE = "15.4.80.19"
+V8_GIT_TAG_STABLE = "15.3.76.10"
 V8_GIT_TAG_MASTER = "master"
 V8_GIT_TAG = V8_GIT_TAG_STABLE
 DEPOT_GIT_URL = "https://chromium.googlesource.com/chromium/tools/depot_tools.git"
@@ -37,6 +37,7 @@ gn_args = {
     "v8_deprecation_warnings": "false",
     "v8_enable_backtrace": "false",
     "v8_enable_builtins_optimization": "false" if platform.system() in ("Darwin", ) else "true",
+    "v8_enable_cppgc": "true",
     "v8_enable_disassembler": "false",
     "v8_enable_gdbjit": "false",
     "v8_enable_i18n_support": "true",
