@@ -24,7 +24,7 @@ gn_args = {
     "enable_rust": "false",
     # "is_asan": "false",
     "is_cfi": "false",
-    "is_clang": "true",
+    "is_clang": "false" if platform.system() in ("Linux", ) else "true",
     "is_component_build": "false",
     "is_debug": "true" if os.environ.get("STPYV8_DEBUG") else "false",
     "strip_debug_info": "true",
