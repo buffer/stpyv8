@@ -24,7 +24,7 @@ gn_args = {
     "enable_rust": "false",
     # "is_asan": "false",
     "is_cfi": "false",
-    "is_clang": "false" if platform.system() in ("Linux", ) else "true",
+    "is_clang": "true",
     "is_component_build": "false",
     "is_debug": "true" if os.environ.get("STPYV8_DEBUG") else "false",
     "strip_debug_info": "true",
@@ -170,6 +170,9 @@ elif os.name in ("posix",):
     if platform.system() in ("Linux",):
         # os.environ["CC"]="clang"
         # os.environ["CXX"]="clang++"
+        os.environ["AR"]="llvm-ar"
+        os.environ["NM"]="llvm-nm"
+        os.environ["RANLIB"]="llvm-ranlib"
         os.environ["ARCHFLAGS"]="-arch x86_64"
         libraries.append("rt")
         extra_compile_args.append("-std=c++2a")
